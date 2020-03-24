@@ -9,6 +9,7 @@ import { Ingredient } from '../../shared/ingredient.model';
 import { ShoppingListService } from '../shopping-list.service';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { formArrayNameProvider } from '@angular/forms/src/directives/reactive_directives/form_group_name';
 
 @Component({
   selector: 'app-shopping-edit',
@@ -42,7 +43,23 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
   onAddItem(form: NgForm) {
     const value = form.value;
     const newIngredient = new Ingredient(value.name, value.amount);
-    this.slService.addIngredient(newIngredient);
+    if(this.editMode){
+      this.slService.updateIngredient(this.editedItemIndex, newIngredient);
+    } else {
+      this.slService.addIngredient(newIngredient);
+    }
+    this.resetForm();
+  }
+
+  resetForm(){
+    this.slForm.reset();
+    this.editMode = false;
+  }
+
+  onDelete(){
+    const value = this.slForm.value;
+    this.slService.removeIngredient(this.editedItemIndex);
+    this.resetForm();
   }
 
   ngOnDestroy() {
